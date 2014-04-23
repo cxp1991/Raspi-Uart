@@ -11,7 +11,7 @@ int control_servo (int fd, int servo_id, int angle)
 	/* Command ID */		
 	command[2] = 0x3;
 
-	/* servo ID*/
+	/* servo ID */
 	command[3] = servo_id; // 1, 2
 
 	/* angle*/

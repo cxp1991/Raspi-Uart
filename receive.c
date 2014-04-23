@@ -1,5 +1,12 @@
-#include "uart.h"
-
+#include <stdio.h>
+#include <unistd.h>			
+#include <fcntl.h>			
+#include <termios.h>		
+#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
+ #include <pthread.h>
 
 int open_uart (const char *device, const int baud)
 {
@@ -80,15 +87,7 @@ int tx_uart (int fd, const char *tx_buffer)
 		printf("UART TX error\n");
 	}
 
-	//printf ("Sended: %s, count = %d\n", tx_buffer,  tx_bytes);
-
-	int i;
-	printf ("Sended: ");
-	for (i = 0; i < tx_bytes; i++)
-	{
-		printf ("%d ", tx_buffer[i]);
-	}
-	printf ("\n");
+	printf ("Sended: %s, count = %d\n", tx_buffer,  tx_bytes);
 
 	return 	tx_bytes;
 }
@@ -112,10 +111,64 @@ int rx_uart (int fd, char *rx_buffer, int num_byte_receive_expected)
 		else
 		{
 			rx_buffer[rx_length] = '\0';
-			printf("%i bytes read : %s\n", rx_length, rx_buffer);
+			//printf("%i bytes read : %s\n", rx_length, rx_buffer);
+			int i;
+			for (i = 0; i < rx_length; i++)
+			{
+				printf ("%d ", rx_buffer[i]);
+			}
 		}
 	}while (offset < num_byte_receive_expected);
-
+	
+	printf ("\n");
 	return offset;
 }
 
+void receive_uart_thread(int *pfd)
+{
+	char *rx_buffer;
+	rx_buffer = (char*)malloc(sizeof(char)*256);
+	
+	while (1)
+	{
+		rx_uart (*pfd, rx_buffer, 6);
+		fflush (stdout) ;
+	}
+}
+
+int main(int argc, char *argv[])
+{
+	int uart0_filestream = -1;
+	pthread_t rx_thread;
+
+	uart0_filestream = open_uart ("/dev/ttyAMA0", 9600);
+	
+	if (uart0_filestream == -1)
+	{
+		printf("Error - Unable to open UART\n");
+	}
+	
+	//----- Uart receive -----
+	if (uart0_filestream != -1)
+	{
+		int *pfd;
+		pfd = (int*)malloc(sizeof(int));
+		*pfd = uart0_filestream;
+		pthread_create( &rx_thread, NULL, &receive_uart_thread, pfd);
+	}
+
+	//----- Uart Transmit -----
+	/*if (uart0_filestream != -1)
+	{
+		while(1)
+		{
+			tx_uart (uart0_filestream, argv[1]);
+			usleep(1000000);
+		}
+		//tx_uart (uart0_filestream, argv[1]);
+	}*/
+	
+	while(1);
+	close(uart0_filestream);
+
+}
