@@ -1,0 +1,30 @@
+#include "command.h"
+
+int control_servo (int fd, int servo_id, int angle)
+{
+	char command[6];
+	
+	/* Header */	
+	command[0] = 0xA5;
+	command[1] = 0x5A;
+
+	/* Command ID */		
+	command[2] = 0x3;
+
+	/* servo ID*/
+	command[3] = servo_id; // 1, 2
+
+	/* angle*/
+	if (angle < 0)
+		command[4] = '-';
+	else 
+		command[4] = '+';
+
+	if (angle < 0 )
+		angle *= (-1);
+	command[5] = angle;
+
+	int ret = tx_uart(fd, command, 6);
+	return ret;
+}
+
