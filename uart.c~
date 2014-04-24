@@ -98,6 +98,7 @@ int rx_uart (int fd, char *rx_buffer, int num_byte_receive_expected)
 	int offset = 0;
 
 	do {
+		printf ("rx\n");
 		int rx_length = read(fd, (void*)rx_buffer, sizeof(rx_buffer));
 		offset += rx_length;
 		if (rx_length < 0)

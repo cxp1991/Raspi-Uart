@@ -6,7 +6,7 @@ void receive_uart_thread(int *pfd);
 int main (int argc, char *argv[])
 {
 	pthread_t rx_thread;
-	int *pfd;
+	
 	int uart0_filestream = -1;
 
 	uart0_filestream = open_uart ("/dev/ttyAMA0", 9600);

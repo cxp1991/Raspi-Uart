@@ -39,6 +39,7 @@ int get_temperature (int fd)
 	/* Command ID */		
 	command[2] = 0x5;
 
+	/* servo ID */
 	command[3] = 0xFF;
 	command[4] = 0xFF;
 	command[5] = 0xFF;
